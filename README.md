@@ -1,13 +1,20 @@
-# Firehose
+# Essity Firehose
 
-A local dashboard of App Store + Google Play reviews for Abbott's FreeStyle Libre app family — Phase 1 demo.
+Review insights dashboard for App Store and Google Play feedback on Abbott's FreeStyle Libre app family.
 
-The v1 scope is deliberately minimal: a single line chart of daily review counts across 7 app/OS combos, with a scrubbable date-range brush that filters a table of raw reviews below. No sentiment scoring, no classification — just counts + scrubbing.
+This repo was split from [`robcrock/firehose`](https://github.com/robcrock/firehose) at commit `e3b3a81` (merged PR #5). The original `firehose` repo continues as the Phase 1 demo; this repo holds the review analytics dashboard work.
+
+## What's in the dashboard
+
+- KPI strip with period-over-period deltas
+- Sentiment, star rating, and theme breakdowns
+- Trend charts, competitive mentions, negative drivers, and auto-generated insights
+- Global filters for date range, product, platform, rating, and sentiment
 
 ## Layout
 
 ```
-firehose/
+essity-firehose/
 ├── data/reviews.json      ← written by scraper, read by web
 ├── scraper/               ← Python scraper (uv)
 └── web/                   ← Next.js 16 dashboard (pnpm)
@@ -42,9 +49,6 @@ pnpm dev
 
 `pnpm dev` uses webpack, not Turbopack. Turbopack's default dev server has been reported to consume 6–10+ GB of RAM on macOS (vercel/next.js#75142, #73921), which can trigger `kernel_task` thermal/memory-pressure spikes. Webpack runs at ~900 MB here. If you have a newer Turbopack version that's fixed this, drop `--webpack` from `package.json`.
 
-## Phase 2 ideas (not built)
+## Deployment
 
-- Sentiment + category classification via Claude API
-- App-by-app and OS-by-OS comparison charts
-- Volume-spike detector for release-day / recall anomalies
-- Word-cloud of 1-star review phrases
+If you previously deployed from `robcrock/firehose`, repoint the hosting project (e.g. Vercel) to `robcrock/essity-firehose` instead.
