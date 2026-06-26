@@ -1,0 +1,19 @@
+[project]
+name = "firehose-scraper"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "robcrock", email = "rcrocker13@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "app-store-web-scraper>=0.2.0",
+    "google-play-scraper>=1.2.7",
+]
+
+[project.scripts]
+firehose-scraper = "firehose_scraper:main"
+
+[build-system]
+requires = ["uv_build>=0.11.3,<0.12.0"]
+build-backend = "uv_build"

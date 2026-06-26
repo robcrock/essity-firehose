@@ -1,0 +1,48 @@
+version = 1
+revision = 3
+requires-python = ">=3.13"
+
+[[package]]
+name = "app-store-web-scraper"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4d/cb/6ce95fb4a3572fa374ab5b9940c98233fe79b1edd8fedfdc94276f9dc6cb/app_store_web_scraper-0.2.0.tar.gz", hash = "sha256:d1d78d882e85b054cfb08f0521b29e8e549cc568c37c4dc23c8b98a276d4216e", size = 12624, upload-time = "2024-06-22T12:54:59.582Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0f/d7/e78d462952d9db2f7a0edce7b11075c32b62430d82fdf6aef4884eaa7925/app_store_web_scraper-0.2.0-py3-none-any.whl", hash = "sha256:4cd250e52169f48e29f361f323dbf1456d776af7ea54a087d7d3f95cbcbf3686", size = 13201, upload-time = "2024-06-22T12:54:58.615Z" },
+]
+
+[[package]]
+name = "firehose-scraper"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "app-store-web-scraper" },
+    { name = "google-play-scraper" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "app-store-web-scraper", specifier = ">=0.2.0" },
+    { name = "google-play-scraper", specifier = ">=1.2.7" },
+]
+
+[[package]]
+name = "google-play-scraper"
+version = "1.2.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/29/3530af5fee212e7cdd31a5847ecb306c8202745f08dc608de10454a82499/google_play_scraper-1.2.7.tar.gz", hash = "sha256:284f321d1b2c39e39e97e490d51bc316e1d876802360efb7e7463b5c16ed4972", size = 41734, upload-time = "2024-06-07T01:03:11.325Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/33/f7/a23ef3cf8efc9ab3aee565971f59906811e6ce95475314ef7b18d02f30ba/google_play_scraper-1.2.7-py3-none-any.whl", hash = "sha256:a485510b09265f0096fc3813cfc26eef27e9a5c0035f99ee23f80e00de724530", size = 28988, upload-time = "2024-06-07T01:03:09.144Z" },
+]
+
+[[package]]
+name = "urllib3"
+version = "2.6.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4", size = 131584, upload-time = "2026-01-07T16:24:42.685Z" },
+]

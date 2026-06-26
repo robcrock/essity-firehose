@@ -1,0 +1,204 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+  /* Dashboard type scale — clear hierarchy: page → cards → KPIs → labels */
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.25rem;
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.75rem;
+  --text-kpi: 2rem;
+  --text-kpi--line-height: 2.5rem;
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1rem;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  /* Sentiment palette — muted, empathetic (never alarmist) */
+  --color-positive: var(--positive);
+  --color-positive-foreground: var(--positive-foreground);
+  --color-positive-muted: var(--positive-muted);
+  --color-neutral: var(--neutral);
+  --color-neutral-foreground: var(--neutral-foreground);
+  --color-neutral-muted: var(--neutral-muted);
+  --color-negative: var(--negative);
+  --color-negative-foreground: var(--negative-foreground);
+  --color-negative-muted: var(--negative-muted);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Remove default focus outline on chart elements (the blue border issue) */
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-wrapper *:focus {
+  outline: none;
+}
+
+/* Ensure SVG elements in charts don't show focus outline */
+.recharts-wrapper svg:focus,
+.recharts-wrapper svg *:focus {
+  outline: none;
+}
+
+/* Accessible focus-visible states for keyboard navigation */
+.recharts-wrapper *:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:root {
+  /* Warm neutral canvas with a faint teal cast */
+  --background: oklch(0.985 0.004 190);
+  --foreground: oklch(0.27 0.02 220);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.27 0.02 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.27 0.02 220);
+  /* Calm clinical teal primary */
+  --primary: oklch(0.58 0.075 187);
+  --primary-foreground: oklch(0.99 0.005 190);
+  --secondary: oklch(0.96 0.008 195);
+  --secondary-foreground: oklch(0.35 0.025 200);
+  --muted: oklch(0.965 0.006 200);
+  --muted-foreground: oklch(0.52 0.02 215);
+  --accent: oklch(0.95 0.02 188);
+  --accent-foreground: oklch(0.38 0.04 195);
+  --destructive: oklch(0.62 0.13 25);
+  --border: oklch(0.91 0.008 205);
+  --input: oklch(0.91 0.008 205);
+  --ring: oklch(0.58 0.075 187);
+  /* Chart ramp — teal-led, calm */
+  --chart-1: oklch(0.58 0.085 187);
+  --chart-2: oklch(0.68 0.09 160);
+  --chart-3: oklch(0.72 0.08 220);
+  --chart-4: oklch(0.78 0.1 75);
+  --chart-5: oklch(0.6 0.07 250);
+  /* Sentiment — muted green / warm amber / soft red */
+  --positive: oklch(0.63 0.12 158);
+  --positive-foreground: oklch(0.99 0.005 160);
+  --positive-muted: oklch(0.95 0.04 158);
+  --neutral: oklch(0.76 0.1 80);
+  --neutral-foreground: oklch(0.35 0.05 80);
+  --neutral-muted: oklch(0.96 0.04 85);
+  --negative: oklch(0.62 0.12 28);
+  --negative-foreground: oklch(0.99 0.005 30);
+  --negative-muted: oklch(0.96 0.035 30);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.985 0.004 190);
+  --sidebar-foreground: oklch(0.27 0.02 220);
+  --sidebar-primary: oklch(0.58 0.075 187);
+  --sidebar-primary-foreground: oklch(0.99 0.005 190);
+  --sidebar-accent: oklch(0.95 0.02 188);
+  --sidebar-accent-foreground: oklch(0.38 0.04 195);
+  --sidebar-border: oklch(0.91 0.008 205);
+  --sidebar-ring: oklch(0.58 0.075 187);
+}
+
+.dark {
+  --background: oklch(0.2 0.015 220);
+  --foreground: oklch(0.96 0.005 200);
+  --card: oklch(0.24 0.018 220);
+  --card-foreground: oklch(0.96 0.005 200);
+  --popover: oklch(0.24 0.018 220);
+  --popover-foreground: oklch(0.96 0.005 200);
+  --primary: oklch(0.7 0.09 185);
+  --primary-foreground: oklch(0.2 0.02 200);
+  --secondary: oklch(0.3 0.02 215);
+  --secondary-foreground: oklch(0.96 0.005 200);
+  --muted: oklch(0.29 0.018 215);
+  --muted-foreground: oklch(0.72 0.02 200);
+  --accent: oklch(0.32 0.03 195);
+  --accent-foreground: oklch(0.95 0.01 190);
+  --destructive: oklch(0.65 0.13 28);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.7 0.09 185);
+  --chart-1: oklch(0.7 0.09 185);
+  --chart-2: oklch(0.74 0.1 160);
+  --chart-3: oklch(0.72 0.08 225);
+  --chart-4: oklch(0.8 0.1 78);
+  --chart-5: oklch(0.68 0.08 255);
+  --positive: oklch(0.72 0.12 158);
+  --positive-foreground: oklch(0.18 0.02 160);
+  --positive-muted: oklch(0.32 0.05 158);
+  --neutral: oklch(0.8 0.1 82);
+  --neutral-foreground: oklch(0.2 0.03 80);
+  --neutral-muted: oklch(0.34 0.05 82);
+  --negative: oklch(0.68 0.13 28);
+  --negative-foreground: oklch(0.18 0.02 30);
+  --negative-muted: oklch(0.33 0.06 28);
+  --sidebar: oklch(0.24 0.018 220);
+  --sidebar-foreground: oklch(0.96 0.005 200);
+  --sidebar-primary: oklch(0.7 0.09 185);
+  --sidebar-primary-foreground: oklch(0.2 0.02 200);
+  --sidebar-accent: oklch(0.32 0.03 195);
+  --sidebar-accent-foreground: oklch(0.95 0.01 190);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.7 0.09 185);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans text-base leading-normal antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Pulse animation for live indicators */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
