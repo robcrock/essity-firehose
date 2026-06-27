@@ -11,10 +11,8 @@ import {
   USE_CASE_LABELS,
   TIME_RANGE_DAYS,
 } from "./types";
-import { GENERATED_AT } from "./mock-data";
 
 const DAY = 24 * 60 * 60 * 1000;
-const ANCHOR = new Date(GENERATED_AT).getTime();
 
 // ----- Filtering -----
 
@@ -32,15 +30,15 @@ function matchesNonTimeFilters(r: Review, f: FilterState): boolean {
   return true;
 }
 
-export function getWindow(f: FilterState): { start: number; end: number } {
+export function getWindow(f: FilterState, anchor: number): { start: number; end: number } {
   const days = TIME_RANGE_DAYS[f.timeRange];
-  const end = ANCHOR;
+  const end = anchor;
   const start = days === null ? 0 : end - days * DAY;
   return { start, end };
 }
 
-export function filterReviews(reviews: Review[], f: FilterState): Review[] {
-  const { start, end } = getWindow(f);
+export function filterReviews(reviews: Review[], f: FilterState, anchor: number): Review[] {
+  const { start, end } = getWindow(f, anchor);
   return reviews.filter((r) => {
     const t = +new Date(r.date);
     if (t < start || t > end) return false;
@@ -49,10 +47,14 @@ export function filterReviews(reviews: Review[], f: FilterState): Review[] {
 }
 
 // Prior equivalent period (same length immediately before the current window).
-export function priorPeriodReviews(reviews: Review[], f: FilterState): Review[] | null {
+export function priorPeriodReviews(
+  reviews: Review[],
+  f: FilterState,
+  anchor: number,
+): Review[] | null {
   const days = TIME_RANGE_DAYS[f.timeRange];
   if (days === null) return null; // "All" has no prior period
-  const currentStart = ANCHOR - days * DAY;
+  const currentStart = anchor - days * DAY;
   const priorStart = currentStart - days * DAY;
   return reviews.filter((r) => {
     const t = +new Date(r.date);

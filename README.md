@@ -1,54 +1,80 @@
 # Essity Firehose
 
-Review insights dashboard for App Store and Google Play feedback on Abbott's FreeStyle Libre app family.
+Amazon customer review dashboard for Essity incontinence products.
 
-This repo was split from [`robcrock/firehose`](https://github.com/robcrock/firehose) at commit `e3b3a81` (merged PR #5). The original `firehose` repo continues as the Phase 1 demo; this repo holds the review analytics dashboard work.
+A single Next.js app at the repo root. The data pipeline:
 
-## What's in the dashboard
-
-- KPI strip with period-over-period deltas
-- Sentiment, star rating, and theme breakdowns
-- Trend charts, competitive mentions, negative drivers, and auto-generated insights
-- Global filters for date range, product, platform, rating, and sentiment
+1. **[Firecrawl](https://firecrawl.dev)** scrapes the Amazon product page (title, brand, rating, star distribution, features). Stealth proxy bypasses Amazon's basic anti-bot for the `/dp/` URL.
+2. **[Apify](https://apify.com)** (`junglee/amazon-reviews-scraper`) fetches individual customer reviews. Firecrawl alone can't get past Amazon's sign-in wall on `/product-reviews/`, so we delegate to a specialist.
+3. **Vercel AI Gateway** (Claude Haiku 4.5) classifies each review into the dashboard schema: sentiment, themes, use-case segment, competitor mentions.
+4. **Next.js** dashboard renders the JSON files from `data/` as a filterable interface with KPI deltas, trend charts, theme breakdowns, segments, and auto-generated insights.
 
 ## Layout
 
 ```
-essity-firehose/
-├── data/reviews.json      ← written by scraper, read by web
-├── scraper/               ← Python scraper (uv)
-└── web/                   ← Next.js 16 dashboard (pnpm)
+.
+├── app/                          ← Next.js (app router)
+├── components/                   ← dashboard UI
+├── lib/
+│   ├── types.ts                  ← Review, ProductMeta — single source of truth
+│   ├── data.ts                   ← server-only loader for the dashboard
+│   ├── scraper/
+│   │   ├── amazon.ts             ← Firecrawl product page
+│   │   ├── amazon-reviews-apify.ts ← Apify reviews
+│   │   ├── normalize.ts          ← raw → on-disk shapes
+│   │   └── cli.ts                ← `pnpm scrape`
+│   └── classifier/
+│       ├── prompt.ts             ← Essity-tailored prompt builder
+│       └── cli.ts                ← `pnpm classify`
+├── data/
+│   ├── raw/amazon/<asin>.json    ← Apify-scraped reviews + metadata
+│   ├── products/<asin>.json      ← ProductMeta per product (Firecrawl)
+│   └── classified/<asin>.json    ← Review[] ready for the dashboard
+└── public/
 ```
 
 ## Prerequisites
 
 ```bash
-brew install uv pnpm node gh
+brew install pnpm node gh
 ```
 
-## Run it
+## Setup
 
 ```bash
-# 1. Pull ~90 days of reviews across all 7 app/OS combos
-cd scraper
-uv run python -m firehose_scraper.main
-
-# 2. Start the dashboard
-cd ../web
 pnpm install
-pnpm dev
-# → http://localhost:3000
+cp .env.example .env.local
+# Fill in four keys:
+#   FIRECRAWL_API_KEY             https://firecrawl.dev/app
+#   APIFY_TOKEN                   https://console.apify.com/settings/integrations
+#   APIFY_AMAZON_REVIEWS_ACTOR    e.g. "junglee/amazon-reviews-scraper" (or its hash id)
+#   AI_GATEWAY_API_KEY            https://vercel.com/dashboard/ai-gateway
 ```
 
-## Known limits
+For the Apify actor, enable [junglee/amazon-reviews-scraper](https://apify.com/junglee/amazon-reviews-scraper) on your account (Try for free → Use latest version). Pricing is ~$3 per 1,000 reviews. **Free tier caps at 10 reviews per run**; upgrading to Starter lifts the cap.
 
-- **iOS 500-review ceiling.** Apple's public reviews RSS caps at 500 records per app, so for the highest-volume app (*Libre by Abbott*) we cover ~65 of the requested 90 days. All other apps fit comfortably in the window.
-- **No deduplication across app versions.** A review is keyed by `mobile:{os}:{storeId}:{reviewId}` — if Apple re-issues an ID after an update, it'd be treated as a new review. Hasn't been observed.
+## Run
+
+```bash
+# Scrape product page + reviews (default 100 reviews; free Apify tier caps at 10)
+pnpm scrape -- B072JC8RQT
+pnpm scrape -- B072JC8RQT --max-reviews=50      # custom cap
+
+# Classify scraped reviews into the dashboard schema
+pnpm classify -- B072JC8RQT
+
+# Serve the dashboard
+pnpm dev          # → http://localhost:3000
+```
+
+The dashboard hardcodes ASIN `B072JC8RQT` as the active product in `lib/data.ts`. Edit that constant (or pass it through a route segment) to point at a different product.
 
 ## Dev-server note (macOS)
 
-`pnpm dev` uses webpack, not Turbopack. Turbopack's default dev server has been reported to consume 6–10+ GB of RAM on macOS (vercel/next.js#75142, #73921), which can trigger `kernel_task` thermal/memory-pressure spikes. Webpack runs at ~900 MB here. If you have a newer Turbopack version that's fixed this, drop `--webpack` from `package.json`.
+`pnpm dev` uses webpack, not Turbopack. Turbopack's default dev server has been reported to consume 6–10+ GB of RAM on macOS ([vercel/next.js#75142](https://github.com/vercel/next.js/issues/75142), [#73921](https://github.com/vercel/next.js/issues/73921)), which can trigger `kernel_task` thermal/memory-pressure spikes. Webpack runs at ~900 MB here. If you have a newer Turbopack version that's fixed this, drop `--webpack` from `package.json`.
 
 ## Deployment
 
-If you previously deployed from `robcrock/firehose`, repoint the hosting project (e.g. Vercel) to `robcrock/essity-firehose` instead.
+Deployed to Vercel via the GitHub integration — every push to `main` triggers a production build automatically. The Vercel project's root directory is set to `.` (the repo root). The dashboard reads JSON files from `data/` at build time, so committed data files become part of each deploy.
+
+Env vars on Vercel are only needed if you ever run `pnpm scrape` or `pnpm classify` from Vercel Cron / Functions. For the current local-CLI workflow they only need to be in `.env.local`.

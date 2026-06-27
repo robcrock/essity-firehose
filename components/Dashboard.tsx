@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { REVIEWS, PRODUCT_META, GENERATED_AT } from "@/lib/mock-data";
+import type { ProductMeta, Review } from "@/lib/types";
 import {
   autoInsights,
   competitiveMentions,
@@ -32,12 +32,19 @@ import { TopPhrases } from "@/components/panels/TopPhrases";
 import { AutoInsights } from "@/components/panels/AutoInsights";
 import { Activity } from "lucide-react";
 
-function DashboardInner() {
+type DashboardProps = {
+  product: ProductMeta;
+  reviews: Review[];
+  generatedAt: string;
+};
+
+function DashboardInner({ reviews, generatedAt }: { reviews: Review[]; generatedAt: string }) {
   const { filter } = useFilter();
+  const anchor = useMemo(() => new Date(generatedAt).getTime(), [generatedAt]);
 
   const view = useMemo(() => {
-    const current = filterReviews(REVIEWS, filter);
-    const prior = priorPeriodReviews(REVIEWS, filter);
+    const current = filterReviews(reviews, filter, anchor);
+    const prior = priorPeriodReviews(reviews, filter, anchor);
     const kpis = computeKpis(current, prior);
     return {
       current,
@@ -52,7 +59,7 @@ function DashboardInner() {
       phrases: topPhrases(current),
       insights: autoInsights(current, prior, kpis),
     };
-  }, [filter]);
+  }, [reviews, filter, anchor]);
 
   return (
     <>
@@ -101,7 +108,7 @@ function DashboardInner() {
   );
 }
 
-export function Dashboard() {
+export function Dashboard({ product, reviews, generatedAt }: DashboardProps) {
   return (
     <FilterProvider>
       <div className="min-h-screen bg-background">
@@ -117,32 +124,31 @@ export function Dashboard() {
                 </span>
               </div>
               <h1 className="max-w-2xl text-display font-semibold leading-tight tracking-tight text-foreground text-balance">
-                {PRODUCT_META.title}
+                {product.title}
               </h1>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-                <span>{PRODUCT_META.brand}</span>
+                <span>{product.brand}</span>
                 <span className="text-border">·</span>
-                <span>{PRODUCT_META.category}</span>
+                <span>{product.category}</span>
                 <span className="text-border">·</span>
-                <span>{PRODUCT_META.totalReviews.toLocaleString()} lifetime reviews</span>
+                <span>{product.totalReviews.toLocaleString()} lifetime reviews</span>
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <span className="hidden text-right text-xs leading-tight text-muted-foreground sm:block">
                 Analysis as of
                 <br />
-                <span className="font-medium text-foreground">{formatDate(GENERATED_AT)}</span>
+                <span className="font-medium text-foreground">{formatDate(generatedAt)}</span>
               </span>
               <ThemeToggle />
             </div>
           </div>
         </header>
-        <DashboardInner />
+        <DashboardInner reviews={reviews} generatedAt={generatedAt} />
         <footer className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Demonstration dashboard built on a synthetic, deterministic review dataset
-            ({REVIEWS.length} reviews) for the purpose of showcasing analytics UX. Sentiment
-            and theme classifications are simulated.
+            Showing {reviews.length} classified reviews from Amazon ASIN {product.asin}. Sentiment, themes,
+            use-case segments, and competitor mentions are AI-classified via the Vercel AI Gateway.
           </p>
         </footer>
       </div>
